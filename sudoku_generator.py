@@ -1,4 +1,4 @@
-import math,random
+import math,random, pygame
 
 """
 This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
@@ -255,3 +255,73 @@ def generate_sudoku(size, removed):
     sudoku.remove_cells()
     board = sudoku.get_board()
     return board
+
+#Cell Class
+
+class Cell:
+
+    #Cell class iniz
+    #getting the value of the cell, the position, and which screen should be displayed
+    #also whether or not the cell is selected to be changed
+    def __init__(self, value, row, col, screen):
+        self.value = value
+        self.row = row
+        self.col = col
+        self.screen = screen
+        self.selected = False
+
+    #setting a cells value
+    def set_cell_value(self,value):
+        self.value = value
+
+    #Temp value of a cell
+    def set_sketched_value(self,value):
+        self.tempValue = value
+
+    #drawing the cell
+    def draw(self):
+
+        #size of cell
+        cell_width = 540 // 9
+        cell_height = 540 // 9
+        x = self.col * cell_width
+        y = self.row * cell_height
+
+        #Font of game
+        font = pygame.font.SysFont("arial", 30)
+
+        #value of cell. Actual or sketched
+        if self.value != 0:
+            text = font.render(self.value, True, (255, 255, 255))
+            text_rect = text.get_rect(center = (x + cell_width // 2, y + cell_height // 2))
+            self.screen.blit(text, text_rect)
+        elif self.tempValue != 0:
+            sketchFont = pygame.font.SysFont("arial", 15)
+            sketchText = sketchFont.render(self.tempValue, True, (255, 255, 255))
+            self.screen.blit(sketchText, (x + cell_width // 2, y + cell_height // 2))
+
+
+        #selected cell drawing
+        if self.selected:
+            pygame.draw.rect(self.screen, (255, 0, 0), (x, y, cell_width, cell_height), 3)
+        else:
+            pygame.draw.rect(self.screen, (0, 0, 0), (x, y, cell_width, cell_height), 1)
+
+
+def main():
+    try:
+        pygame.init()
+        screen = pygame.display.set_mode((540, 540))
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    mousex, mousey = event.pos
+    finally:
+        pygame.quit()
+
+if __name__ == "__main__":
+    main()
+
