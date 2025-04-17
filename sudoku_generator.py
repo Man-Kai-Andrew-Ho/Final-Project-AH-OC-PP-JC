@@ -1,4 +1,4 @@
-import math,random, pygame
+import math, random, pygame
 
 """
 This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
@@ -331,7 +331,14 @@ class Board:
         self.selected_cell = None
         self.board_values = generate_sudoku(9, difficulty)
         self.original_board = [row[:] for row in self.board_values]
-        self.cells = [[Cell(self.board_values[row][col], row, col, screen) for col in range(9)] for row in range(9)]
+        self.cells = []
+        for row in range(9):
+            row_cells = []
+            for col in range(9):
+                value = self.board_values[row][col]
+                cell = Cell(value, row, col, screen)
+                row_cells.append(cell)
+            self.cells.append(row_cells)
 
     def draw(self):
         self.screen.fill((255, 255, 255))
@@ -385,7 +392,12 @@ class Board:
         return True
 
     def update_board(self):
-        self.board_values = [[cell.value for cell in row] for row in self.cells]
+        self.board_values = []
+        for row in self.cells:
+            row_values = []
+            for cell in row:
+                row_values.append(cell.value)
+            self.board_values.append(row_values)
 
     def find_empty(self):
         for row in range(9):
