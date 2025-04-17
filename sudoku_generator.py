@@ -23,6 +23,7 @@ class SudokuGenerator:
 	None
     '''
     def __init__(self, row_length, removed_cells):
+<<<<<<< Updated upstream
         self.row_length = row_length
         self.removed_cells = removed_cells
         self.box_length = int(math.sqrt(self.row_length))
@@ -33,6 +34,10 @@ class SudokuGenerator:
             for j in range(self.row_length):
                 row.append(0)
             self.board.append(row)
+=======
+        self.row_length = 9
+        pass
+>>>>>>> Stashed changes
 
     '''
 	Returns a 2D python list of numbers which represents the board
@@ -321,6 +326,110 @@ def main():
                     mousex, mousey = event.pos
     finally:
         pygame.quit()
+
+class Board:
+    def __init__(self, width, height, screen, difficulty):
+        self.width = width
+        self.height = height
+        self.screen = screen
+        self.difficulty = difficulty
+        self.selected_cell = None
+        self.board_values = generate_sudoku(9, difficulty)
+        self.original_board = [row[:] for row in self.board_values]
+        self.cells = [[Cell(self.board_values[row][col], row, col, screen) for col in range(9)] for row in range(9)]
+
+    def draw(self):
+        self.screen.fill((255, 255, 255))
+        for i in range(10):
+            line_thickness = 4 if i % 3 == 0 else 1
+            pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.height // 9), (self.width, i * self.height // 9), line_thickness)
+            pygame.draw.line(self.screen, (0, 0, 0), (i * self.width // 9, 0), (i * self.width // 9, self.height), line_thickness)
+
+        for row in self.cells:
+            for cell in row:
+                cell.draw()
+
+    def select(self, row, col):
+        if self.selected_cell:
+            self.selected_cell.selected = False
+        self.selected_cell = self.cells[row][col]
+        self.selected_cell.selected = True
+
+    def click(self, x, y):
+        if 0 <= x < self.width and 0 <= y < self.height:
+            row = y // (self.height // 9)
+            col = x // (self.width // 9)
+            return row, col
+        return None
+
+    def clear(self):
+        if self.selected_cell and self.original_board[self.selected_cell.row][self.selected_cell.col] == 0:
+            self.selected_cell.set_cell_value(0)
+            self.selected_cell.set_sketched_value(0)
+
+    def sketch(self, value):
+        if self.selected_cell:
+            self.selected_cell.set_sketched_value(value)
+
+    def place_number(self, value):
+        if self.selected_cell and self.original_board[self.selected_cell.row][self.selected_cell.col] == 0:
+            self.selected_cell.set_cell_value(value)
+            self.update_board()
+
+    def reset_to_original(self):
+        for row in range(9):
+            for col in range(9):
+                self.cells[row][col].set_cell_value(self.original_board[row][col])
+                self.cells[row][col].set_sketched_value(0)
+
+    def is_full(self):
+        for row in self.cells:
+            for cell in row:
+                if cell.value == 0:
+                    return False
+        return True
+
+    def update_board(self):
+        self.board_values = [[cell.value for cell in row] for row in self.cells]
+
+    def find_empty(self):
+        for row in range(9):
+            for col in range(9):
+                if self.cells[row][col].value == 0:
+                    return row, col
+        return None
+
+    def check_board(self):
+        for row in range(9):
+            for col in range(9):
+                num = self.board_values[row][col]
+                if num == 0:
+                    return False
+                self.board_values[row][col] = 0
+                if not self.is_valid(row, col, num):
+                    return False
+                self.board_values[row][col] = num
+        return True
+
+    def is_valid(self, row, col, num):
+
+        for c in range(9):
+            if self.board_values[row][c] == num:
+                return False
+
+        for r in range(9):
+            if self.board_values[r][col] == num:
+                return False
+
+        box_row = row - row % 3
+        box_col = col - col % 3
+        for r in range(box_row, box_row + 3):
+            for c in range(box_col, box_col + 3):
+                if self.board_values[r][c] == num:
+                    return False
+
+        return True
+
 
 if __name__ == "__main__":
     main()
