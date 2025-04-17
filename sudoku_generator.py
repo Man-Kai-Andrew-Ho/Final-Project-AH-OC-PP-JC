@@ -8,22 +8,21 @@ https://www.geeksforgeeks.org/program-sudoku-generator/
 
 class SudokuGenerator:
     '''
-	create a sudoku board - initialize class variables and set up the 2D board
-	This should initialize:
-	self.row_length		- the length of each row
-	self.removed_cells	- the total number of cells to be removed
-	self.board			- a 2D list of ints to represent the board
-	self.box_length		- the square root of row_length
+    create a sudoku board - initialize class variables and set up the 2D board
+    This should initialize:
+    self.row_length		- the length of each row
+    self.removed_cells	- the total number of cells to be removed
+    self.board			- a 2D list of ints to represent the board
+    self.box_length		- the square root of row_length
 
-	Parameters:
+    Parameters:
     row_length is the number of rows/columns of the board (always 9 for this project)
     removed_cells is an integer value - the number of cells to be removed
 
-	Return:
-	None
+    Return:
+    None
     '''
     def __init__(self, row_length, removed_cells):
-<<<<<<< Updated upstream
         self.row_length = row_length
         self.removed_cells = removed_cells
         self.box_length = int(math.sqrt(self.row_length))
@@ -34,10 +33,6 @@ class SudokuGenerator:
             for j in range(self.row_length):
                 row.append(0)
             self.board.append(row)
-=======
-        self.row_length = 9
-        pass
->>>>>>> Stashed changes
 
     '''
 	Returns a 2D python list of numbers which represents the board
