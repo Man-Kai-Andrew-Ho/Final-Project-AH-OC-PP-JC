@@ -293,12 +293,12 @@ class Cell:
 
         #value of cell. Actual or sketched
         if self.value != 0:
-            text = font.render(str(self.value), True, (255, 255, 255))
+            text = font.render(str(self.value), True, (0, 0, 0))
             text_rect = text.get_rect(center = (x + cell_width // 2, y + cell_height // 2))
             self.screen.blit(text, text_rect)
         elif self.tempValue != 0:
             sketchFont = pygame.font.SysFont("arial", 15)
-            sketchText = sketchFont.render(str(self.tempValue), True, (255, 255, 255))
+            sketchText = sketchFont.render(str(self.tempValue), True, (0, 0, 0))
             self.screen.blit(sketchText, (x + cell_width // 2, y + cell_height // 2))
 
 
@@ -431,7 +431,7 @@ def main():
     screen = pygame.display.set_mode((540, 540))
     pygame.display.set_caption("Sudoku")
 
-    board = Board(540, 540, screen, difficulty=30)  # You can adjust difficulty
+    board = Board(540, 540, screen, difficulty=30)  # Adjust difficulty if needed
     clock = pygame.time.Clock()
     running = True
 
@@ -449,33 +449,41 @@ def main():
 
             elif event.type == pygame.KEYDOWN:
                 if board.selected_cell:
-                    if event.key == pygame.K_1:
-                        board.place_number(1)
-                    if event.key == pygame.K_2:
-                        board.place_number(2)
-                    if event.key == pygame.K_3:
-                        board.place_number(3)
-                    if event.key == pygame.K_4:
-                        board.place_number(4)
-                    if event.key == pygame.K_5:
-                        board.place_number(5)
-                    if event.key == pygame.K_6:
-                        board.place_number(6)
-                    if event.key == pygame.K_7:
-                        board.place_number(7)
-                    if event.key == pygame.K_8:
-                        board.place_number(8)
-                    if event.key == pygame.K_9:
-                        board.place_number(9)
-                    if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
+                    # Sketch numbers
+                    if event.key in (pygame.K_1, pygame.K_KP1):
+                        board.sketch(1)
+                    if event.key in (pygame.K_2, pygame.K_KP2):
+                        board.sketch(2)
+                    if event.key in (pygame.K_3, pygame.K_KP3):
+                        board.sketch(3)
+                    if event.key in (pygame.K_4, pygame.K_KP4):
+                        board.sketch(4)
+                    if event.key in (pygame.K_5, pygame.K_KP5):
+                        board.sketch(5)
+                    if event.key in (pygame.K_6, pygame.K_KP6):
+                        board.sketch(6)
+                    if event.key in (pygame.K_7, pygame.K_KP7):
+                        board.sketch(7)
+                    if event.key in (pygame.K_8, pygame.K_KP8):
+                        board.sketch(8)
+                    if event.key in (pygame.K_9, pygame.K_KP9):
+                        board.sketch(9)
+
+                    # Confirm sketched value with ENTER
+                    if event.key == pygame.K_RETURN:
+                        temp = board.selected_cell.tempValue
+                        if temp != 0:
+                            board.place_number(temp)
+
+                    # Clear sketch with BACKSPACE or DELETE
+                    if event.key in (pygame.K_BACKSPACE, pygame.K_DELETE):
                         board.clear()
 
         board.draw()
         pygame.display.update()
-        clock.tick(60)  # 60 FPS
+        clock.tick(60)
 
     pygame.quit()
-
 
 
 if __name__ == "__main__":
