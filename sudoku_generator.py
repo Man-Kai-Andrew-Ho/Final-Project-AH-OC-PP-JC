@@ -269,6 +269,7 @@ class Cell:
         self.col = col
         self.screen = screen
         self.selected = False
+        self.tempValue = 0
 
     #setting a cells value
     def set_cell_value(self,value):
@@ -292,12 +293,12 @@ class Cell:
 
         #value of cell. Actual or sketched
         if self.value != 0:
-            text = font.render(self.value, True, (255, 255, 255))
+            text = font.render(str(self.value), True, (255, 255, 255))
             text_rect = text.get_rect(center = (x + cell_width // 2, y + cell_height // 2))
             self.screen.blit(text, text_rect)
         elif self.tempValue != 0:
             sketchFont = pygame.font.SysFont("arial", 15)
-            sketchText = sketchFont.render(self.tempValue, True, (255, 255, 255))
+            sketchText = sketchFont.render(str(self.tempValue), True, (255, 255, 255))
             self.screen.blit(sketchText, (x + cell_width // 2, y + cell_height // 2))
 
 
@@ -307,20 +308,6 @@ class Cell:
         else:
             pygame.draw.rect(self.screen, (0, 0, 0), (x, y, cell_width, cell_height), 1)
 
-
-def main():
-    try:
-        pygame.init()
-        screen = pygame.display.set_mode((540, 540))
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    mousex, mousey = event.pos
-    finally:
-        pygame.quit()
 
 class Board:
     def __init__(self, width, height, screen, difficulty):
@@ -436,6 +423,59 @@ class Board:
                     return False
 
         return True
+
+
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((540, 540))
+    pygame.display.set_caption("Sudoku")
+
+    board = Board(540, 540, screen, difficulty=30)  # You can adjust difficulty
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                clicked = board.click(mouse_x, mouse_y)
+                if clicked:
+                    row, col = clicked
+                    board.select(row, col)
+
+            elif event.type == pygame.KEYDOWN:
+                if board.selected_cell:
+                    if event.key == pygame.K_1:
+                        board.place_number(1)
+                    if event.key == pygame.K_2:
+                        board.place_number(2)
+                    if event.key == pygame.K_3:
+                        board.place_number(3)
+                    if event.key == pygame.K_4:
+                        board.place_number(4)
+                    if event.key == pygame.K_5:
+                        board.place_number(5)
+                    if event.key == pygame.K_6:
+                        board.place_number(6)
+                    if event.key == pygame.K_7:
+                        board.place_number(7)
+                    if event.key == pygame.K_8:
+                        board.place_number(8)
+                    if event.key == pygame.K_9:
+                        board.place_number(9)
+                    if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
+                        board.clear()
+
+        board.draw()
+        pygame.display.update()
+        clock.tick(60)  # 60 FPS
+
+    pygame.quit()
+
 
 
 if __name__ == "__main__":
