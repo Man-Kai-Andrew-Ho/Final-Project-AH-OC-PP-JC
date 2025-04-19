@@ -424,67 +424,122 @@ class Board:
 
         return True
 
-
+    def draw_text_middle(self, screen, text, size, color):
+        font = pygame.font.SysFont("arial", size, bold=True)
+        label = font.render(text, True, color)
+        label_rect = label.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+        screen.blit(label, label_rect)
+        pygame.display.update()
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((540, 540))
+    screen = pygame.display.set_mode((540, 600))
     pygame.display.set_caption("Sudoku")
 
-    board = Board(540, 540, screen, difficulty=30)  # Adjust difficulty if needed
+    board = Board(540, 540, screen, difficulty=5)
     clock = pygame.time.Clock()
     running = True
+    game_over = False
+    won = False
+
+    # Button setup
+    font = pygame.font.SysFont("arial", 24)
+    button_width = 150
+    button_height = 40
+
+    reset_button = pygame.Rect(30, 550, button_width, button_height)
+    new_game_button = pygame.Rect(195, 550, button_width, button_height)
+    exit_button = pygame.Rect(360, 550, button_width, button_height)
+
+    def draw_buttons():
+        pygame.draw.rect(screen, (200, 200, 200), reset_button)
+        pygame.draw.rect(screen, (200, 200, 200), new_game_button)
+        pygame.draw.rect(screen, (200, 200, 200), exit_button)
+
+        reset_text = font.render("Reset", True, (0, 0, 0))
+        new_game_text = font.render("New Game", True, (0, 0, 0))
+        exit_text = font.render("Exit", True, (0, 0, 0))
+
+        screen.blit(reset_text, (reset_button.x + 35, reset_button.y + 7))
+        screen.blit(new_game_text, (new_game_button.x + 15, new_game_button.y + 7))
+        screen.blit(exit_text, (exit_button.x + 50, exit_button.y + 7))
 
     while running:
+        screen.fill((255, 255, 255))  # Clear screen each frame
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                clicked = board.click(mouse_x, mouse_y)
-                if clicked:
-                    row, col = clicked
-                    board.select(row, col)
+            if not game_over:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    if mouse_y < 540:  # only click inside board
+                        clicked = board.click(mouse_x, mouse_y)
+                        if clicked:
+                            row, col = clicked
+                            board.select(row, col)
+                    else:
+                        if reset_button.collidepoint((mouse_x, mouse_y)):
+                            board.reset_to_original()
+                        if new_game_button.collidepoint((mouse_x, mouse_y)):
+                            board = Board(540, 540, screen, difficulty=5)
+                            game_over = False
+                            won = False
+                        if exit_button.collidepoint((mouse_x, mouse_y)):
+                            running = False
 
-            elif event.type == pygame.KEYDOWN:
-                if board.selected_cell:
-                    # Sketch numbers
-                    if event.key in (pygame.K_1, pygame.K_KP1):
-                        board.sketch(1)
-                    if event.key in (pygame.K_2, pygame.K_KP2):
-                        board.sketch(2)
-                    if event.key in (pygame.K_3, pygame.K_KP3):
-                        board.sketch(3)
-                    if event.key in (pygame.K_4, pygame.K_KP4):
-                        board.sketch(4)
-                    if event.key in (pygame.K_5, pygame.K_KP5):
-                        board.sketch(5)
-                    if event.key in (pygame.K_6, pygame.K_KP6):
-                        board.sketch(6)
-                    if event.key in (pygame.K_7, pygame.K_KP7):
-                        board.sketch(7)
-                    if event.key in (pygame.K_8, pygame.K_KP8):
-                        board.sketch(8)
-                    if event.key in (pygame.K_9, pygame.K_KP9):
-                        board.sketch(9)
+                elif event.type == pygame.KEYDOWN:
+                    if board.selected_cell:
+                        if event.key in (pygame.K_1, pygame.K_KP1):
+                            board.sketch(1)
+                        if event.key in (pygame.K_2, pygame.K_KP2):
+                            board.sketch(2)
+                        if event.key in (pygame.K_3, pygame.K_KP3):
+                            board.sketch(3)
+                        if event.key in (pygame.K_4, pygame.K_KP4):
+                            board.sketch(4)
+                        if event.key in (pygame.K_5, pygame.K_KP5):
+                            board.sketch(5)
+                        if event.key in (pygame.K_6, pygame.K_KP6):
+                            board.sketch(6)
+                        if event.key in (pygame.K_7, pygame.K_KP7):
+                            board.sketch(7)
+                        if event.key in (pygame.K_8, pygame.K_KP8):
+                            board.sketch(8)
+                        if event.key in (pygame.K_9, pygame.K_KP9):
+                            board.sketch(9)
 
-                    # Confirm sketched value with ENTER
-                    if event.key == pygame.K_RETURN:
-                        temp = board.selected_cell.tempValue
-                        if temp != 0:
-                            board.place_number(temp)
+                        if event.key == pygame.K_RETURN:
+                            temp = board.selected_cell.tempValue
+                            if temp != 0:
+                                board.place_number(temp)
+                                if board.is_full():
+                                    if board.check_board():
+                                        won = True
+                                    else:
+                                        won = False
+                                    game_over = True
 
-                    # Clear sketch with BACKSPACE or DELETE
-                    if event.key in (pygame.K_BACKSPACE, pygame.K_DELETE):
-                        board.clear()
+                        if event.key in (pygame.K_BACKSPACE, pygame.K_DELETE):
+                            board.clear()
 
         board.draw()
+        draw_buttons()
+
+        # Checks if game over
+        if game_over:
+            if won:
+                board.draw_text_middle(screen, "You Win!", 50, (0, 255, 0))
+            else:
+                board.draw_text_middle(screen, "Game Over", 50, (255, 0, 0))
+
         pygame.display.update()
         clock.tick(60)
 
     pygame.quit()
 
+pygame.quit()
 
 if __name__ == "__main__":
     main()
