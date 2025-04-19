@@ -473,7 +473,7 @@ class Board:
 
     #static to show diffculty screen
     def show_difficulty_screen(screen):
-        font = pygame.font.SysFont("comicsans", 40)
+        font = pygame.font.SysFont("arial", 40)
         screen.fill((255, 255, 255))
 
         easy_button = pygame.Rect(170, 200, 200, 60)
